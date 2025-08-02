@@ -10,6 +10,7 @@ import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import Sidebar from '@/components/layout/Sidebar';
 import TopBar from '@/components/layout/Topbar';
 import Link from 'next/link';
+import TopNavBar from '@/components/layout/TopNavBar';
 
 export default function SalesDashboard() {
   const supabase = createClient()
@@ -177,8 +178,10 @@ export default function SalesDashboard() {
   );
 
   return (
+    <>
+    <TopNavBar />
     <div className="flex h-screen">
-     
+      
       <div className="flex-1 flex flex-col overflow-hidden">
         
         <div className="p-6 space-y-6 bg-gray-50 h-screen overflow-y-auto">
@@ -314,5 +317,6 @@ export default function SalesDashboard() {
         </div>
       </div>
     </div>
+    </>
   );
 }

@@ -47,8 +47,8 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white p-4">
-      <div className="relative w-full  h-[120vh] rounded-[32px] overflow-hidden shadow-2xl flex">
+    <div className="h-screen flex items-center justify-center bg-white p-4">
+      <div className="relative w-full  h-full rounded-[32px] overflow-hidden shadow-2xl flex">
         {/* Background image */}
         <Image
           src="/images/login-bg.png"
@@ -139,7 +139,7 @@ export default function LoginPage() {
 
               <div className="text-left text-sm">
                 <span className="font-helvetica text-[#475467] text-[14px] leading-[20px] font-medium">Forgot password? </span>
-                <Link href="/users/forgot-password" className="font-helvetica text-[14px] leading-[20px] font-medium text-[#1800AD] hover:underline">
+                <Link href="/users/forgot-password" className="font-helvetica text-[14px] leading-[20px] font-medium text-[#6A52FF] hover:underline">
                   Reset
                 </Link>
               </div>
@@ -147,7 +147,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="font-helvetica w-full bg-[#1800AD] text-white py-2 mt-10 rounded-full hover:bg-[#0e08a7] disabled:opacity-50"
+                className="font-helvetica w-full bg-[#6A52FF] text-white py-4 mt-10 rounded-full hover:bg-[#0e08a7] disabled:opacity-50"
               >
                 {loading ? 'Logging in…' : 'Login'}
               </button>
@@ -155,7 +155,7 @@ export default function LoginPage() {
 
             <div className="text-center mt-6 text-sm">
               <span className="font-helvetica text-[#344054] text-[14px] leading-[150%] font-medium">New to Must Celebrate? </span>
-              <Link href="/users/signup" className="text-[14px] leading-[150%] font-bold font-helvetica text-[#1800AD] hover:underline">
+              <Link href="/users/signup" className="text-[14px] leading-[150%] font-bold font-helvetica text-[#6A52FF] hover:underline">
                 Sign Up
               </Link>
             </div>

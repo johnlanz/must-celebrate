@@ -26,7 +26,6 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${plusJakarta.variable} font-[var(--font-plus-jakarta)] antialiased`}>
         {/* ✅ Move TopNavBar here so it's always visible */}
-        <TopNavBar />
         {children}
         <AIGenerateButton />
       </body>
