@@ -80,9 +80,9 @@ export default function LoginPage() {
 
         {/* Right Login Card */}
         <div className="relative flex-1 flex items-center justify-center p-6 mx-[48px]">
-          <div className="w-full max-[631px] bg-white/70 backdrop-blur-[16px]  rounded-[32px] p-8 shadow-md">
-            <h2 className="text-[48px] font-medium leading-[100%] tracking-[0px] text-center text-[#1D2939] mb-6 font-helvetica">Login</h2>
-            <p className="text-[14px] font-normal leading-[150%] tracking-[0px] text-center text-[#667085] font-helvetica mb-6">
+          <div className="w-full h-full bg-white/70 backdrop-blur-[16px]  rounded-[32px] p-8 shadow-md">
+            <h2 className="text-[48px] font-medium leading-[100%] tracking-[0px] text-center text-[#1D2939] mb-4 font-helvetica">Login</h2>
+            <p className="text-[14px] font-normal leading-[150%] tracking-[0px] text-center text-[#667085] font-helvetica mb-4">
               Welcome back! Please sign in to continue.
             </p>
 
@@ -109,13 +109,13 @@ export default function LoginPage() {
               </button>
             </div>
 
-            <div className="flex items-center my-4">
+            <div className="flex items-center px-9 my-4">
               <hr className="flex-1 border-[#EAECF0]" />
               <span className="text-[14px] font-normal leading-[150%] tracking-[0px] text-center text-[#667085] font-helvetica">or continue with</span>
               <hr className="flex-1 border-[#EAECF0]" />
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4 mt-10">
+            <form onSubmit={handleSubmit} className="px-6 space-y-4 mt-4">
               {errorMessage && <p className="text-red-600 text-sm">{errorMessage}</p>}
               <label className="text-[#475467] text-[14px] leading-[20px] font-medium font-helvetica ">Email</label>
               <input
@@ -147,13 +147,13 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="font-helvetica w-full bg-[#6A52FF] text-white py-4 mt-10 rounded-full hover:bg-[#0e08a7] disabled:opacity-50"
+                className="font-helvetica w-full bg-[#6A52FF] text-white py-4 mt-3 rounded-full hover:bg-[#0e08a7] disabled:opacity-50"
               >
                 {loading ? 'Logging in…' : 'Login'}
               </button>
             </form>
 
-            <div className="text-center mt-6 text-sm">
+            <div className="text-center text-sm mt-3">
               <span className="font-helvetica text-[#344054] text-[14px] leading-[150%] font-medium">New to Must Celebrate? </span>
               <Link href="/users/signup" className="text-[14px] leading-[150%] font-bold font-helvetica text-[#6A52FF] hover:underline">
                 Sign Up

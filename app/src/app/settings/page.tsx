@@ -9,6 +9,7 @@ import Sidebar from '@/components/layout/Sidebar'
 import TopBar from '@/components/layout/Topbar'
 import { createClient } from '@/utils/supabase/client' // ✅ Using your custom client
 import { toast } from 'sonner'
+import TopNavBar from '@/components/layout/TopNavBar'
 
 const LOCAL_STORAGE_KEY = 'userSettings'
 
@@ -78,9 +79,9 @@ export default function SettingsPage() {
 
     return (
         <div className="flex h-screen">
-            <Sidebar />
+              
             <div className="flex-1 flex flex-col overflow-hidden">
-                <TopBar user={{ name: 'John Doe', profileImage: undefined }} />
+              <TopNavBar />
                 <div className="w-full flex justify-start overflow-y-auto px-8 py-10">
                     <div className="w-full max-w-4xl space-y-8">
                         <h1 className="text-2xl font-semibold mb-6">My Settings</h1>

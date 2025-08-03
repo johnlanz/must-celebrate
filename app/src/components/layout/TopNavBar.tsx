@@ -56,13 +56,20 @@ export default function TopNavBar() {
         <header className="relative w-full h-16 bg-white border-b border-gray-200 flex items-center px-6">
             {/* Left: Logo */}
             <div className="flex items-center z-10">
-                <Image src="/images/logo.svg" alt="Logo" width={193} height={39} />
+
+                <Link href="/">
+                    <Image
+                        src="/images/logo.svg"
+                        alt="Logo"
+                        width={193}
+                        height={39}
+                        className="cursor-pointer"
+                    />
+                </Link>
             </div>
 
             {/* Center: Navigation */}
-            <nav className="absolute left-1/2 transform -translate-x-1/2 flex gap-8 space-x-[37px] text-[14px] font-helvetica font-medium text-[#667085] leading-[15px]">
-
-
+            <nav className="absolute left-1/2 transform -translate-x-1/2 flex gap-4 space-x-[37px] text-[14px] font-helvetica font-medium text-[#667085] leading-[15px]">
                 <NavItem
                     icon={
                         <img
@@ -116,29 +123,28 @@ export default function TopNavBar() {
 }
 
 function NavItem({
-  icon,
-  label,
-  href,
+    icon,
+    label,
+    href,
 }: {
-  icon: React.ReactNode
-  label: React.ReactNode
-  href: string
+    icon: React.ReactNode
+    label: React.ReactNode
+    href: string
 }) {
-  const pathname = usePathname()
-  const isActive = pathname === href
+    const pathname = usePathname()
+    const isActive = pathname === href
 
-  return (
-    <Link
-      href={href}
-      scroll={false}
-      className={`flex items-center gap-2 py-2 px-1 rounded-md transition-all cursor-pointer ${
-        isActive ? 'text-[#5f43f1] font-semibold' : 'text-gray-700 hover:text-[#5f43f1]'
-      }`}
-    >
-      <div className="w-5 h-5">{icon}</div>
-      <span className="text-sm font-medium">{label}</span>
-    </Link>
-  )
+    return (
+        <Link
+            href={href}
+            scroll={false}
+            className={`flex items-center gap-2 py-2 px-1 rounded-md transition-all cursor-pointer ${isActive ? 'text-[#5f43f1] font-semibold' : 'text-gray-700 hover:text-[#5f43f1]'
+                }`}
+        >
+            <div className="w-5 h-5">{icon}</div>
+            <span className="text-sm font-medium">{label}</span>
+        </Link>
+    )
 }
 
 

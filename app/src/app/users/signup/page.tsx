@@ -37,20 +37,20 @@ export default function SignUpPage() {
     if (!data.session) {
       toast.success(`Confirmation email sent to ${email}. Please check your inbox.`)
     } else {
-      router.push('/') // or wherever post-login
+      router.push('users/choose-role') // or wherever post-login
     }
   }
   const handleOAuthLogin = async (provider: 'google' | 'facebook') => {
     await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: `http://localhost:3000/auth/callback`,
+        redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/users/choose-role`,
       },
     })
   }
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white p-4">
-      <div className="relative w-full  h-[120vh] rounded-[32px] overflow-hidden shadow-2xl flex">
+    <div className="h-screen flex items-center justify-center bg-white p-4">
+      <div className="relative w-full h-full rounded-[32px] overflow-hidden shadow-2xl flex">
         {/* Background image */}
         <Image
           src="/images/login-bg.png"
@@ -81,14 +81,14 @@ export default function SignUpPage() {
 
 
         {/* Right Login Card */}
-        <div className="relative flex-1 flex items-center justify-center p-6 mx-[48px]">
-          <div className="w-full max-[631px] bg-white/70 backdrop-blur-[16px]  rounded-[32px] p-8 shadow-md">
-            <h2 className="text-[48px] font-medium leading-[100%] tracking-[0px] text-center text-[#1D2939] mb-6 font-helvetica">Sign Up</h2>
-            <p className="text-[14px] font-normal leading-[150%] tracking-[0px] text-center text-[#667085] font-helvetica mb-6">
+        <div className="relative flex-1 flex items-center justify-center p-4 mx-[48px]">
+          <div className="w-full h-full bg-white/70 backdrop-blur-[16px]  rounded-[32px] p-4 shadow-md">
+            <h2 className="text-[48px] font-medium leading-[100%] tracking-[0px] text-center text-[#1D2939] mb-4 font-helvetica mt-3">Sign Up</h2>
+            <p className="text-[14px] font-normal leading-[150%] tracking-[0px] text-center text-[#667085] font-helvetica mb-4">
               Welcome back! Please sign in to continue.
             </p>
 
-            <div className="flex gap-3 mb-4 items-center justify-center py-6">
+            <div className="flex gap-3 mb-4 items-center justify-center py-4">
               <button
                 onClick={() => handleOAuthLogin('google')}
                 className="flex items-center justify-center gap-2 w-[261.5px] h-[48px] px-5 border border-[#F2F4F7] bg-white shadow-[0px_1px_2px_0px_#1018280D] rounded-full text-[#344054] text-base font-medium leading-[120%] tracking-[0.22px] hover:bg-gray-50 transition"
@@ -111,13 +111,13 @@ export default function SignUpPage() {
               </button>
             </div>
 
-            <div className="flex items-center my-4">
+            <div className="flex items-center px-9 my-4">
               <hr className="flex-1 border-[#EAECF0]" />
               <span className="text-[14px] font-normal leading-[150%] tracking-[0px] text-center text-[#667085] font-helvetica">or continue with</span>
               <hr className="flex-1 border-[#EAECF0]" />
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4 w-full text-left mt-10">
+            <form onSubmit={handleSubmit} className="px-6 space-y-4 mt-4">
 
               <label htmlFor="email" className="text-[#475467] text-[14px] leading-[20px] font-medium font-helvetica">
                 Email
@@ -166,7 +166,7 @@ export default function SignUpPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="font-helvetica w-full bg-[#1800AD] text-white py-2 mt-10 rounded-full hover:bg-[#0e08a7] disabled:opacity-50"
+                className="font-helvetica w-full bg-[#6A52FF] text-white py-4 mt-3 rounded-full hover:bg-[#6A52FF] disabled:opacity-50"
               >
                 {loading ? 'Creating account...' : 'Create account'}
               </button>
@@ -175,9 +175,9 @@ export default function SignUpPage() {
             </form>
 
 
-            <div className="text-center mt-6 text-sm">
+            <div className="text-center mt-2 text-sm">
               <span className="font-helvetica text-[#344054] text-[14px] leading-[150%] font-medium">Already part of Must Celebrate? </span>
-              <Link href="/login" className="text-[14px] leading-[150%] font-bold font-helvetica text-[#1800AD] hover:underline">
+              <Link href="/login" className="text-[14px] leading-[150%] font-bold font-helvetica text-[#6A52FF] hover:underline">
                 Login
               </Link>
             </div>

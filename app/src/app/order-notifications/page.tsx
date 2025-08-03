@@ -15,6 +15,7 @@ import { LineChart, Line, ResponsiveContainer } from 'recharts';
 import { useOrderMetrics } from '@/lib/useOrderMetrics';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import OrderView from '@/components/products/OrderView';
+import TopNavBar from '@/components/layout/TopNavBar';
 
 dayjs.extend(relativeTime);
 
@@ -37,7 +38,7 @@ export default function OrderNotificationPage() {
 
     // helper for % change
     const pct = (curr: number, prev: number) =>
-    prev > 0 ? ((curr - prev) / prev) * 100 : 0;
+        prev > 0 ? ((curr - prev) / prev) * 100 : 0;
 
     const totalChange = pct(metricTotal, totalLastWeek);
     const todayChange = pct(metricToday, todayLastWeek);
@@ -72,18 +73,18 @@ export default function OrderNotificationPage() {
         const channel = supabase
             .channel('orders-insert')            // the channel name is arbitrary
             .on(
-            'postgres_changes',
-            { event: 'INSERT', schema: 'public', table: 'order_details' },
-            ({ new: order }) => {
-                // 👉 any UI side-effects you like
-                console.log(`New order #${order.id} – ₱${order.total}`);
-                // 🔄 pull fresh counts & sparkline
-                refresh();
-                fetchOrders();
+                'postgres_changes',
+                { event: 'INSERT', schema: 'public', table: 'order_details' },
+                ({ new: order }) => {
+                    // 👉 any UI side-effects you like
+                    console.log(`New order #${order.id} – ₱${order.total}`);
+                    // 🔄 pull fresh counts & sparkline
+                    refresh();
+                    fetchOrders();
 
-                // optional: highlight the newest row
-                setLatestOrderId(order.id);
-            },
+                    // optional: highlight the newest row
+                    setLatestOrderId(order.id);
+                },
             )
             .subscribe();
 
@@ -197,16 +198,16 @@ export default function OrderNotificationPage() {
 
     return (
         <div className="flex h-screen">
-            <Sidebar />
+
             <div className="flex-1 flex flex-col overflow-hidden">
-                <TopBar title="New Orders" user={{ name: 'John Doe' }} />
+                <TopNavBar />
                 <Toaster position="top-right" />
 
                 {/*  View-order modal  */}
                 <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                     <DialogContent className="min-w-2/4 max-h-[90vh] overflow-y-auto">
                         <DialogHeader>
-                        <DialogTitle>Order #{selectedOrder?.id}</DialogTitle>
+                            <DialogTitle>Order #{selectedOrder?.id}</DialogTitle>
                         </DialogHeader>
 
                         {selectedOrder && (
