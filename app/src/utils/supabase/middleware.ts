@@ -42,7 +42,8 @@ export async function updateSession(request: NextRequest) {
     !request.nextUrl.pathname.startsWith('/shops') &&
     !request.nextUrl.pathname.startsWith('/no-access') &&
     !request.nextUrl.pathname.startsWith('/auth') &&
-    !request.nextUrl.pathname.startsWith('/api/checkout')
+    !request.nextUrl.pathname.startsWith('/api/checkout') &&
+    request.nextUrl.pathname !== '/' // ✅ allow landing page
   ) {
     // no user, potentially respond by redirecting the user to the login page
     const url = request.nextUrl.clone()
