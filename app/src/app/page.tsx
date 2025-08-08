@@ -6,6 +6,7 @@ import TopBar from '@/components/layout/Topbar'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel'
+import LandingTop from '@/components/layout/LandingTop'
 
 const categories = [
   { title: 'Community <br> & Cultural', img: '/images/community.jpg' },
@@ -28,7 +29,7 @@ export default function Landing() {
 
   return (
     <>
-      <TopBar />
+      <LandingTop />
       <main className="overflow-y-auto bg-white">
 
         {/* 🌄 Hero Section */}
