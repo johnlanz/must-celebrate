@@ -36,6 +36,7 @@ export async function updateSession(request: NextRequest) {
 
   if (
     !user &&
+    
     !request.nextUrl.pathname.startsWith('/socket.io') &&
     !request.nextUrl.pathname.startsWith('/users') &&
     !request.nextUrl.pathname.startsWith('/error') &&
@@ -43,6 +44,7 @@ export async function updateSession(request: NextRequest) {
     !request.nextUrl.pathname.startsWith('/no-access') &&
     !request.nextUrl.pathname.startsWith('/auth') &&
     !request.nextUrl.pathname.startsWith('/api/checkout') &&
+    !request.nextUrl.pathname.startsWith('/api/signup') &&
     request.nextUrl.pathname !== '/' // ✅ allow landing page
   ) {
     // no user, potentially respond by redirecting the user to the login page

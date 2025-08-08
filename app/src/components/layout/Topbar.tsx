@@ -146,10 +146,10 @@ export default function TopNavBar() {
         </Link>
 
         {/* Sign Up Button */}
-        <Link href="/users/signup">
+        <Link href="/users/choose-role">
           <button
             type="button"
-            className="font-helvetica bg-[#6A52FF] text-white text-[14px] font-normal px-14 py-2 rounded-full hover:bg-[#0e08a7] disabled:opacity-50"
+            className="font-helvetica cursor-pointer bg-[#6A52FF] text-white text-[14px] font-normal px-14 py-2 rounded-full hover:bg-[#0e08a7] disabled:opacity-50"
           >
             Sign Up
           </button>

@@ -1,187 +1,245 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useEffect, useState } from 'react'
 import { createClient } from '@/utils/supabase/client'
-import { Toaster } from '@/components/ui/sonner'
 import { toast } from 'sonner'
 import Link from 'next/link'
 import Image from 'next/image'
+import { Eye, EyeOff } from 'lucide-react'
 
 export default function SignUpPage() {
+  const searchParams = useSearchParams()
+  const role = searchParams.get('role')?.toLowerCase() ?? null
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
   const [email, setEmail] = useState('')
+  const [phone, setPhone] = useState('')
   const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const router = useRouter()
   const supabase = createClient()
-  const [confirmPassword, setConfirmPassword] = useState('');
+
+  useEffect(() => {
+    if (!role || !['customer', 'vendor'].includes(role)) {
+      router.replace('/users/choose-role')
+    }
+  }, [role, router])
 
   const handleSubmit = async (e: React.FormEvent) => {
-    if (password !== confirmPassword) {
-      alert('Passwords do not match');
-      return;
-    }
-
     e.preventDefault()
-    setLoading(true)
 
-    const { data, error } = await supabase.auth.signUp({ email, password })
-
-    setLoading(false)
-
-    if (error) {
-      toast.error(error.message)
+    if (password !== confirmPassword) {
+      toast.warning('Passwords do not match')
       return
     }
 
-    if (!data.session) {
-      toast.success(`Confirmation email sent to ${email}. Please check your inbox.`)
-    } else {
-      router.push('users/choose-role') // or wherever post-login
+    setLoading(true)
+    try {
+      console.log(JSON.stringify({ firstName, lastName, email, phone, password, role }))
+      const res = await fetch('/api/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ firstName, lastName, email, phone, password, role }),
+      })
+      const data = await res.json()
+      setLoading(false)
+
+      if (!res.ok) {
+        toast.error(data.error || 'Error creating account')
+        return
+      }
+
+      toast.success(data.message)
+      router.push('/users/signup-success')
+    } catch (err) {
+      setLoading(false)
+      console.error('Signup error:', err)
+      toast.error('Something went wrong. Please try again.')
     }
   }
+
   const handleOAuthLogin = async (provider: 'google' | 'facebook') => {
     await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/users/choose-role`,
+        redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback?role=${role}`,
       },
     })
   }
+
   return (
     <div className="h-screen flex items-center justify-center bg-white p-4">
-      <div className="relative w-full h-full rounded-[32px] overflow-hidden shadow-2xl flex">
-        {/* Background image */}
-        <Image
-          src="/images/login-bg.png"
-          alt="Background"
-          layout="fill"
-          objectFit="cover"
-          className="absolute inset-0 z-0"
-        />
-        {/* Black overlay with 40% opacity (≈ #00000066) */}
-        <div className="absolute inset-0 bg-black/40  rounded-[32px]" />
-
-        {/* Left Overlay Text (z-20 to appear above image and overlay) */}
-
-        <div className="relative z-20 flex-1 text-white flex flex-col mx-[48px]">
-          {/* Logo at top-left */}
-          <div className="absolute top-12 left-12">
-            <Image src="/images/logo-login.svg" alt="Logo" width={193} height={39} />
-          </div>
-
-          {/* Centered text */}
-          <div className="flex-1 flex flex-col justify-center px-10">
+      <div className="relative w-full h-full rounded-[32px] shadow-2xl flex flex-col bg-[url(/images/login-bg.jpg)] bg-cover bg-center bg-no-repeat p-12">
+        <div className="absolute inset-0 bg-black/40 rounded-[32px]" />
+        <div className="relative z-20">
+          <Image src="/images/logo-login.svg" alt="Logo" width={193} height={39} />
+        </div>
+        <div className="relative w-full z-20 flex justify-between items-center h-full">
+          <div className="text-white flex flex-col justify-center">
             <h1 className="text-[78px] font-bold leading-[120%] tracking-[0.22px]">
               Your Dream <br /> Event Starts <br /> Here
             </h1>
-            <p className="mt-4 text-[16px] font-medium text-base leading-[120%] tracking-[0.22px]">Celebrate milestones. Plan with ease. Trusted by Filipinos.</p>
-          </div>
-        </div>
-
-
-        {/* Right Login Card */}
-        <div className="relative flex-1 flex items-center justify-center p-4 mx-[48px]">
-          <div className="w-full h-full bg-white/70 backdrop-blur-[16px]  rounded-[32px] p-4 shadow-md">
-            <h2 className="text-[48px] font-medium leading-[100%] tracking-[0px] text-center text-[#1D2939] mb-4 font-helvetica mt-3">Sign Up</h2>
-            <p className="text-[14px] font-normal leading-[150%] tracking-[0px] text-center text-[#667085] font-helvetica mb-4">
-              Welcome back! Please sign in to continue.
+            <p className="mt-4 text-[16px] font-medium leading-[120%] tracking-[0.22px]">
+              Celebrate milestones. Plan with ease. Trusted by Filipinos.
             </p>
+          </div>
+          <div className="w-[631px] flex items-center justify-center">
+            <div className="w-full h-full bg-white/70 backdrop-blur-[16px] rounded-[32px] p-4 shadow-md">
+              <h2 className="text-[48px] font-medium leading-[100%] text-center text-[#1D2939] mb-4 font-helvetica mt-3">
+                Sign Up
+              </h2>
+              <p className="text-[14px] font-normal leading-[150%] text-center text-[#667085] font-helvetica mb-4">
+                Welcome! Create your account to continue.
+              </p>
 
-            <div className="flex gap-3 mb-4 items-center justify-center py-4">
-              <button
-                onClick={() => handleOAuthLogin('google')}
-                className="flex items-center justify-center gap-2 w-[261.5px] h-[48px] px-5 border border-[#F2F4F7] bg-white shadow-[0px_1px_2px_0px_#1018280D] rounded-full text-[#344054] text-base font-medium leading-[120%] tracking-[0.22px] hover:bg-gray-50 transition"
-              >
-                <Image
-                  src="/images/google-icon-logo.svg"
-                  alt="Google"
-                  width={20}
-                  height={20}
-                />
-                <span>Continue with Google</span>
-              </button>
+              <div className="flex gap-3 mb-4 items-center justify-center py-4">
+                <button
+                  onClick={() => handleOAuthLogin('google')}
+                  className="flex items-center justify-center gap-2 w-[261.5px] h-[48px] px-5 border border-[#F2F4F7] bg-white shadow rounded-full text-[#344054] text-base font-medium hover:bg-gray-50 transition"
+                >
+                  <Image src="/images/google-icon-logo.svg" alt="Google" width={20} height={20} />
+                  Continue with Google
+                </button>
+                <button
+                  onClick={() => handleOAuthLogin('facebook')}
+                  className="flex items-center justify-center gap-2 w-[261.5px] h-[48px] px-5 border border-[#F2F4F7] bg-white shadow rounded-full text-[#344054] text-base font-medium hover:bg-gray-50 transition"
+                >
+                  <Image src="/images/facebook-logo.png" alt="Facebook" width={20} height={20} />
+                  Continue with Facebook
+                </button>
+              </div>
 
-              <button
-                onClick={() => handleOAuthLogin('facebook')}
-                className="flex items-center justify-center gap-2 w-[261.5px] h-[48px] px-5 border border-[#F2F4F7] bg-white shadow-[0px_1px_2px_0px_#1018280D] rounded-full text-[#344054] text-base font-medium leading-[120%] tracking-[0.22px] hover:bg-gray-50 transition"
-              >
-                <Image src="/images/facebook-logo.png" alt="Facebook" width={20} height={20} className="mr-2" />
-                Continue with Facebook
-              </button>
+              <div className="flex items-center px-9 my-4">
+                <hr className="flex-1 border-[#EAECF0]" />
+                <span className="text-[14px] font-normal leading-[150%] text-center text-[#667085] font-helvetica">
+                  or continue with
+                </span>
+                <hr className="flex-1 border-[#EAECF0]" />
+              </div>
+
+              <form onSubmit={handleSubmit} className="px-6 space-y-4 mt-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-[#475467] text-[14px] font-medium font-helvetica">
+                      First Name
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Enter your first name..."
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      required
+                      className="font-helvetica mt-2 w-full border bg-white border-[#F2F4F7] rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#5f43f1]"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[#475467] text-[14px] font-medium font-helvetica">
+                      Last Name
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Enter your last name..."
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      required
+                      className="font-helvetica mt-2 w-full border bg-white border-[#F2F4F7] rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#5f43f1]"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label htmlFor="email" className="text-[#475467] text-[14px] font-medium font-helvetica">
+                      Email
+                    </label>
+                    <input
+                      id="email"
+                      type="email"
+                      placeholder="Enter your email..."
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      className="font-helvetica mt-2 w-full border bg-white border-[#F2F4F7] rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#5f43f1]"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[#475467] text-[14px] font-medium font-helvetica">
+                      Phone
+                    </label>
+                    <input
+                      type="tel"
+                      placeholder="Enter your phone number..."
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      required
+                      className="font-helvetica mt-2 w-full border bg-white border-[#F2F4F7] rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#5f43f1]"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="relative">
+                    <label htmlFor="password" className="text-[#475467] text-[14px] font-medium font-helvetica">
+                      Password
+                    </label>
+                    <input
+                      id="password"
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder="Enter your password..."
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      className="font-helvetica mt-2 w-full border bg-white border-[#F2F4F7] rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#5f43f1]"
+                    />
+                    <button
+                      type="button"
+                      className="absolute inset-y-0 top-8 right-4 flex items-center"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                    </button>
+                  </div>
+                  <div className="relative">
+                    <label htmlFor="confirm-password" className="text-[#475467] text-[14px] font-medium font-helvetica">
+                      Confirm Password
+                    </label>
+                    <input
+                      id="confirm-password"
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      placeholder="Confirm your password..."
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      required
+                      className="font-helvetica mt-2 w-full border bg-white border-[#F2F4F7] rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#5f43f1]"
+                    />
+                    <button
+                      type="button"
+                      className="absolute inset-y-0 top-8 right-4 flex items-center"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    >
+                      {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                    </button>
+                  </div>
+                </div>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="font-helvetica w-full bg-[#6A52FF] text-white py-4 mt-3 rounded-full hover:bg-[#0e08a7] disabled:opacity-50"
+                >
+                  {loading ? 'Creating account...' : 'Create account'}
+                </button>
+              </form>
+              <div className="text-center my-2 text-sm">
+                <span className="font-helvetica text-[#344054] text-[14px] font-medium">
+                  Already part of Must Celebrate?
+                </span>
+                <Link href="/users/login" className="text-[14px] font-bold font-helvetica text-[#6A52FF] hover:underline ml-1">
+                  Login
+                </Link>
+              </div>
             </div>
-
-            <div className="flex items-center px-9 my-4">
-              <hr className="flex-1 border-[#EAECF0]" />
-              <span className="text-[14px] font-normal leading-[150%] tracking-[0px] text-center text-[#667085] font-helvetica">or continue with</span>
-              <hr className="flex-1 border-[#EAECF0]" />
-            </div>
-
-            <form onSubmit={handleSubmit} className="px-6 space-y-4 mt-4">
-
-              <label htmlFor="email" className="text-[#475467] text-[14px] leading-[20px] font-medium font-helvetica">
-                Email
-              </label>
-              <input
-                id="email"
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="font-helvetica w-full border bg-white border-[#F2F4F7] rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#5f43f1]"
-                placeholder="Enter your email..."
-              />
-
-
-
-              <label htmlFor="password" className="text-[#475467] text-[14px] leading-[20px] font-medium font-helvetica">
-                Password
-              </label>
-              <input
-                id="password"
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="font-helvetica w-full border bg-white border-[#F2F4F7] rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#5f43f1]"
-                placeholder="Enter your password..."
-              />
-
-
-
-              <label htmlFor="confirm-password" className="text-[#475467] text-[14px] leading-[20px] font-medium font-helvetica">
-                Confirm Password
-              </label>
-              <input
-                id="confirm-password"
-                type="password"
-                required
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="font-helvetica w-full border bg-white border-[#F2F4F7] rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#5f43f1]"
-                placeholder="Confirm your password..."
-              />
-
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="font-helvetica w-full bg-[#6A52FF] text-white py-4 mt-3 rounded-full hover:bg-[#6A52FF] disabled:opacity-50"
-              >
-                {loading ? 'Creating account...' : 'Create account'}
-              </button>
-
-
-            </form>
-
-
-            <div className="text-center mt-2 text-sm">
-              <span className="font-helvetica text-[#344054] text-[14px] leading-[150%] font-medium">Already part of Must Celebrate? </span>
-              <Link href="/login" className="text-[14px] leading-[150%] font-bold font-helvetica text-[#6A52FF] hover:underline">
-                Login
-              </Link>
-            </div>
-
           </div>
         </div>
       </div>

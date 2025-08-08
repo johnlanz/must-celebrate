@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 import Image from 'next/image'
 import Link from 'next/link'
+import { toast } from 'sonner'
 
 export default function ChooseRolePage() {
   const [selectedRole, setSelectedRole] = useState<'customer' | 'vendor' | null>(null)
@@ -12,25 +13,12 @@ export default function ChooseRolePage() {
   const router = useRouter()
 
   const handleSubmit = async () => {
-    const { data: userData, error: userError } = await supabase.auth.getUser()
-    const user = userData?.user
-
-    if (userError || !user) {
-      console.error('Failed to get user:', userError)
-      return alert('Could not fetch authenticated user.')
+    if (!selectedRole) {
+      toast.error('Please select a role')
+      return
     }
 
-    const { error: upsertError } = await supabase.from('profiles').upsert({
-      id: user.id,
-      role: selectedRole,
-    })
-
-    if (upsertError) {
-      console.error('Failed to upsert role:', upsertError)
-      return alert('Failed to save role.')
-    }
-
-    router.push('/')
+    router.push(`/users/signup?role=${selectedRole}`)
   }
 
   const renderCheck = (role: 'customer' | 'vendor') => (
@@ -97,14 +85,14 @@ export default function ChooseRolePage() {
         <button
           disabled={!selectedRole}
           onClick={handleSubmit}
-          className="mt-6 w-full max-w-xs mx-auto bg-[#6A52FF] text-white py-3 px-6 rounded-full hover:bg-[#0e08a7]  disabled:opacity-50"
+          className="mt-6 w-full max-w-xs mx-auto cursor-pointer bg-[#6A52FF] text-white py-3 px-6 rounded-full hover:bg-[#0e08a7]  disabled:opacity-50"
         >
           Create Account
         </button>
 
         <p className="text-sm text-gray-600 ">
           Already have an account?{' '}
-          <Link href="/login" className="text-[#6A52FF] font-medium hover:underline">
+          <Link href="/users/login" className="text-[#6A52FF] font-medium hover:underline">
             Login
           </Link>
         </p>

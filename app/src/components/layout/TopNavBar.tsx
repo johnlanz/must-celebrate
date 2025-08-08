@@ -116,7 +116,7 @@ export default function TopNavBar() {
 
             {/* Right: Profile Dropdown */}
             <div className="ml-auto">
-                <TopBar user={{ name: 'John Doe', profileImage: undefined }} />
+                
             </div>
         </header>
     )

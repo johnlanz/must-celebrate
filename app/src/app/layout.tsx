@@ -28,6 +28,7 @@ export default function RootLayout({
         {/* ✅ Move TopNavBar here so it's always visible */}
         {children}
         <AIGenerateButton />
+        <Toaster position="top-right" />
       </body>
     </html>
   );
