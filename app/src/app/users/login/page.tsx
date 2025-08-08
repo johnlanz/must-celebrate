@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 import Link from 'next/link'
 import Image from 'next/image'
+import { Eye, EyeOff } from 'lucide-react'
 
 export default function LoginPage() {
   const supabase = createClient()
@@ -14,6 +15,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [showPassword, setShowPassword] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -109,25 +111,41 @@ export default function LoginPage() {
 
               <form onSubmit={handleSubmit} className="px-6 space-y-4 mt-4">
                 {errorMessage && <p className="text-red-600 text-sm">{errorMessage}</p>}
-                <label className="text-[#475467] text-[14px] leading-[20px] font-medium font-helvetica ">Email</label>
-                <input
-                  type="email"
-                  placeholder="Enter your email..."
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="font-helvetica w-full border bg-white border-[#F2F4F7] rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#5f43f1]"
-                />
-                <label className="text-[#475467] text-[14px] leading-[20px] font-medium font-helvetica ">Password</label>
-
-                <input
-                  type="password"
-                  placeholder="Enter your password..."
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  className="font-helvetica w-full border bg-white border-[#F2F4F7] rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#5f43f1]"
-                />
+                <div>
+                    <label htmlFor="email" className="text-[#475467] text-[14px] font-medium font-helvetica">
+                      Email
+                    </label>
+                    <input
+                      id="email"
+                      type="email"
+                      placeholder="Enter your email..."
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      className="font-helvetica mt-2 w-full border bg-white border-[#F2F4F7] rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#5f43f1]"
+                    />
+                </div>
+                <div className="relative">
+                    <label htmlFor="password" className="text-[#475467] text-[14px] font-medium font-helvetica">
+                      Password
+                    </label>
+                    <input
+                      id="password"
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder="Enter your password..."
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      className="font-helvetica mt-2 w-full border bg-white border-[#F2F4F7] rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#5f43f1]"
+                    />
+                    <button
+                      type="button"
+                      className="absolute inset-y-0 top-8 right-4 flex items-center"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                    </button>
+                </div>
 
                 <div className="text-left text-sm">
                   <span className="font-helvetica text-[#475467] text-[14px] leading-[20px] font-medium">Forgot password? </span>

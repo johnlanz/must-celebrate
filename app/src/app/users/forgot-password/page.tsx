@@ -1,78 +1,158 @@
+// app/auth/forgot-password/page.tsx
 'use client'
 
 import { useState } from 'react'
-import { redirect } from 'next/navigation'
-import { forgotPassword } from '../actions'
+import { createClient } from '@/utils/supabase/client'
+import { toast } from 'sonner'
+import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import Link from 'next/link'
-import LoadingButton from '@/components/layout/LoadingButton'
 
-export default function ForgotPasswordPage() {
-  const [submitted, setSubmitted] = useState(false)
+export default function ForgotPasswordWithOtp() {
+  const supabase = createClient()
+  const router = useRouter()
+
+  const [step, setStep] = useState<'request' | 'verify' | 'update'>('request')
   const [loading, setLoading] = useState(false)
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault()
+  const [email, setEmail] = useState('')
+  const [code, setCode] = useState('')          // 6-digit OTP from email
+  const [password, setPassword] = useState('')
+  const [confirm, setConfirm] = useState('')
+
+  async function sendOtp() {
+    if (!email) return toast.warning('Enter your email')
     setLoading(true)
-    try {
-      const formData = new FormData(event.currentTarget)
-      await forgotPassword(formData)
-      setSubmitted(true)
-    } catch (error) {
-      console.error('Error sending reset link:', error)
-      // Optionally set an error state here to show a message to the user
-    } finally {
-      setLoading(false)
-    }
+    const { error } = await supabase.auth.resetPasswordForEmail(email)
+    setLoading(false)
+    if (error) return toast.error(error.message)
+    toast.success('Code sent! Check your email.')
+    setStep('verify')
+  }
+
+  async function verifyOtp() {
+    if (code.length < 6) return toast.warning('Enter the 6-digit code')
+    setLoading(true)
+    const { error } = await supabase.auth.verifyOtp({
+      email,
+      token: code.trim(),
+      type: 'recovery', // OTP for account recovery
+    })
+    setLoading(false)
+    if (error) return toast.error(error.message)
+    toast.success('Code verified')
+    setStep('update')
+  }
+
+  async function updatePassword() {
+    if (password.length < 8) return toast.warning('Password must be at least 8 characters')
+    if (password !== confirm) return toast.warning("Passwords don't match")
+
+    setLoading(true)
+    const { error } = await supabase.auth.updateUser({ password })
+    setLoading(false)
+    if (error) return toast.error(error.message)
+    toast.success('Password updated! Please sign in.')
+    router.push('/login')
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
+    <div className="h-screen flex flex-col items-center justify-center bg-white px-6">
+      <div className=" w-full h-full space-y-4 text-center">
+        <Image src="/images/logo.svg" alt="Logo" width={193} height={39} className="mx-auto mt-4" />
+        <div className="h-full w-[600px] mt-[200px] mx-auto flex flex-col">
 
-      <div className="max-w-md  w-full space-y-6">
-        <div className="flex justify-center items-center"><img src="/images/logo.svg" alt="Logo" className="w-[300px] mb-4" /></div>
-
-        <h2 className="text-2xl font-bold">Forgot your password?</h2>
-        {submitted ? (
-          <p className="text-green-600">Check your email for a reset link.</p>
-        ) : (
-          <form onSubmit={handleSubmit} className="space-y-4">
-
-            <div>
-              <p className="pb-4">Enter the email address of your Must Celebrate account. You will receive an email to reset your password.
-
-              </p>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email Address
-              </label>
-              <input
-                type="email"
-                name="email"
-                id="email"
-                required
-                placeholder="you@example.com"
-                className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:border-[#67a626] focus:ring-[#67a626]"
-              />
+          {step === 'request' && (
+            <>
+            <h1 className="text-[48px] text-[#1D2939] font-bold">
+              Forgot password?
+            </h1>
+            <p className="text-[14px]">No worries, we'll send you reset instructions.</p>
+            <div className="flex flex-col my-12">
+                <label htmlFor="email" className="text-[#475467] text-left text-[14px] font-medium font-helvetica">
+                  Email
+                </label>
+                <input
+                  id="email"
+                  type="email"
+                  placeholder="Enter your email..."
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="font-helvetica mt-2 w-full border bg-white border-[#F2F4F7] rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#5f43f1]"
+                />
             </div>
-            <div className="flex justify-between items-center mt-4">
-              <Link
-                href="/users/login"
-                className="text-base text-[#1800AD] hover:underline"
-              >
-                ← Back
-              </Link>
-
-              <LoadingButton 
-                type="submit" 
-                loading={loading} 
-                loadingText="Sending..." 
-                className="bg-[#1800AD] text-white py-2 px-4 rounded-md hover:bg-[#1800AD]"
-              >
-                Send Reset Link
-              </LoadingButton>
-            </div>
-
-          </form>
+            <button
+              onClick={sendOtp}
+              disabled={loading}
+              className="w-full cursor-pointer bg-[#6A52FF] text-white py-3 px-6 rounded-full hover:bg-[#0e08a7]  disabled:opacity-50"
+            >
+              {loading ? 'Sending…' : 'Submit'}
+            </button>
+          </>
         )}
+
+        {step === 'verify' && (
+          <>
+            <input
+              type="text"
+              inputMode="numeric"
+              placeholder="6-digit code"
+              className="w-full border rounded-lg px-4 py-2 tracking-widest text-center"
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+            />
+            <button
+              onClick={verifyOtp}
+              disabled={loading}
+              className="w-full bg-[#6A52FF] text-white py-3 rounded-lg disabled:opacity-50"
+            >
+              {loading ? 'Verifying…' : 'Verify code'}
+            </button>
+            <button
+              onClick={sendOtp}
+              disabled={loading}
+              className="w-full border py-3 rounded-lg"
+            >
+              Resend code
+            </button>
+          </>
+        )}
+
+        {step === 'update' && (
+          <>
+            <input
+              type="password"
+              placeholder="New password"
+              className="w-full border rounded-lg px-4 py-2"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <input
+              type="password"
+              placeholder="Confirm new password"
+              className="w-full border rounded-lg px-4 py-2"
+              value={confirm}
+              onChange={(e) => setConfirm(e.target.value)}
+            />
+            <button
+              onClick={updatePassword}
+              disabled={loading}
+              className="w-full bg-[#6A52FF] text-white py-3 rounded-lg disabled:opacity-50"
+            >
+              {loading ? 'Saving…' : 'Change password'}
+            </button>
+          </>
+        )}
+
+        <p className="text-sm text-gray-600 mt-4">
+          New to Must Celebrate?{' '}
+          <Link href="/users/choose-role" className="text-[#6A52FF] font-medium hover:underline">
+            Signup
+          </Link>
+        </p>
+        </div>
+        
       </div>
     </div>
   )
