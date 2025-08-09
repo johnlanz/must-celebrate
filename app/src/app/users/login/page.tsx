@@ -34,8 +34,9 @@ export default function LoginPage() {
         body: JSON.stringify({ uid: data.user.id }),
       })
       const profile = await response.json()
-      if (profile.profileData.role === 'admin') router.push('/')
-      else router.push('/order-notifications')
+      // if (profile.profileData.role === 'admin') router.push('/')
+      // else router.push('/dashboard')
+      router.push('/dashboard')
     }
   }
 
