@@ -36,7 +36,7 @@ export async function UserAuth(): Promise<{
   try {
     const { data: profileData, error: profileErr } = await supabase
       .from('profiles')
-      .select('role')    // adjust column name(s) as needed
+      .select('*')    // adjust column name(s) as needed
       .eq('id', user.id)
       .single()
     console.log('UserAuth.profile:', profileData)   

@@ -2,7 +2,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useState, useEffect, ReactNode } from 'react'
+import { useState, useEffect } from 'react'
 import { toast } from 'react-toastify'
 import { IsLogin, UserAuth, HasAccess } from '@/lib/UserAuth'
 import { FullScreenLoader } from './layout/FullScreenLoader'
@@ -13,11 +13,8 @@ type AccessControlOptions = {
   loginRedirect?: string
 }
 
-/**
- * HOC for pages (no props) or components: ensure hooks of WrappedComponent run separately.
- */
-export function AccessControl(
-  WrappedComponent: React.ComponentType,  // page takes no props
+export function AccessControl<P extends object>(
+  WrappedComponent: React.ComponentType<P & { currentUser: any }>,
   options: AccessControlOptions = {}
 ) {
   const {
@@ -26,39 +23,41 @@ export function AccessControl(
     noAccessRedirect = '/no-access',
   } = options
 
-  const WithAccessControl: React.FC = () => {
+  const WithAccessControl: React.FC<P> = (props) => {
     const router = useRouter()
     const [isVerified, setIsVerified] = useState(false)
+    const [currentUser, setCurrentUser] = useState<any>(null)
 
     useEffect(() => {
       let mounted = true
       async function verify() {
         const loggedIn = await IsLogin()
         if (!loggedIn) {
-          console.log('User is not logged in, redirecting to login page.')
           toast.info('Please log in to continue.')
           router.replace(loginRedirect)
           return
         }
-        const currentUser = await UserAuth()
+        const user = await UserAuth()
         if (access) {
-          const ok = HasAccess(access, currentUser)
+          const ok = HasAccess(access, user)
           if (!ok) {
             toast.warn('You do not have permission to access this page.')
             router.replace(noAccessRedirect)
             return
           }
         }
-        if (mounted) setIsVerified(true)
+        if (mounted) {
+          setCurrentUser(user)
+          setIsVerified(true)
+        }
       }
       verify()
       return () => { mounted = false }
     }, [router])
 
-    if (!isVerified) {
-      return <FullScreenLoader />
-    }
-    return <WrappedComponent />    // render as React component
+    if (!isVerified) return <FullScreenLoader />
+
+    return <WrappedComponent {...props} currentUser={currentUser} />
   }
 
   return WithAccessControl
