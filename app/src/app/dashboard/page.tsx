@@ -69,8 +69,8 @@ const packages = [
 const categories = [
     { id: 1, title: "Weddings & Milestones", icon: Gift, image: "/images/weddings.jpg" },
     { id: 2, title: "Birthdays & Celebrations", icon: Gift, image: "/images/birthday.jpg" },
-    { id: 3, title: "Corporate & Professional", icon: ShoppingBag, image: "/images/birthday.jpg" },
-    { id: 4, title: "Community & Cultural", icon: MapPin, image: "/images/corporate.jpg" },
+    { id: 3, title: "Corporate & Professional", icon: ShoppingBag, image: "/images/corporate.jpg" },
+    { id: 4, title: "Community & Cultural", icon: MapPin, image: "/images/community.jpg" },
     { id: 5, title: "Entertainment & Sports", icon: Star, image: "/images/entertainment.jpg" },
     { id: 6, title: "Funerals & Memorials", icon: Clock, image: "/images/celebration.jpg" },
 ];
