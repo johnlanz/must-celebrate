@@ -5,8 +5,9 @@ import { useSearchParams, useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import LoadingButton from '@/components/layout/LoadingButton'
+import { Suspense } from 'react'
 
-export default function CheckEmailClient() {
+function CheckEmailClient() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const email = searchParams.get('email') ?? ''
@@ -149,5 +150,14 @@ export default function CheckEmailClient() {
         </a>.
       </p>
     </div>
+  )
+}
+
+export default function DefaultCheckEmailClient() {
+  return (
+    // You could have a loading skeleton as the `fallback` too
+    <Suspense>
+      <CheckEmailClient />
+    </Suspense>
   )
 }

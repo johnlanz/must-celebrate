@@ -7,10 +7,11 @@ import { createClient } from '@/utils/supabase/client'
 import { deriveFirstLast } from '@/utils/names'
 import Image from 'next/image'
 import { toast } from 'sonner'
+import { Suspense } from 'react'
 
 type Role = 'customer' | 'vendor'
 
-export default function AuthCallbackPage() {
+function AuthCallback() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const supabase = createClient()
@@ -240,5 +241,14 @@ export default function AuthCallbackPage() {
         </button>
       </div>
     </div>
+  )
+}
+
+export default function AuthCallbackPage() {
+  return (
+    // You could have a loading skeleton as the `fallback` too
+    <Suspense>
+      <AuthCallback />
+    </Suspense>
   )
 }

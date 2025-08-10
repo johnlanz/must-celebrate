@@ -7,8 +7,9 @@ import { toast } from 'sonner'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Eye, EyeOff } from 'lucide-react'
+import { Suspense } from 'react'
 
-export default function SignUpPage() {
+function SignUpPage() {
   const searchParams = useSearchParams()
   const role = searchParams.get('role')?.toLowerCase() ?? null
   const [firstName, setFirstName] = useState('')
@@ -244,5 +245,14 @@ export default function SignUpPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function DefaultSignUpPage() {
+  return (
+    // You could have a loading skeleton as the `fallback` too
+    <Suspense>
+      <SignUpPage />
+    </Suspense>
   )
 }
