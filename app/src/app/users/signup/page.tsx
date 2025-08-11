@@ -8,6 +8,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Eye, EyeOff } from 'lucide-react'
 import { Suspense } from 'react'
+import PhoneInput from '@/components/users/PhoneInput'
 
 function SignUpPage() {
   const searchParams = useSearchParams()
@@ -71,6 +72,8 @@ function SignUpPage() {
       },
     })
   }
+
+  console.log('Phone:', phone)
 
   return (
     <div className="h-screen flex items-center justify-center bg-white p-4">
@@ -170,14 +173,14 @@ function SignUpPage() {
                     <label className="text-[#475467] text-[14px] font-medium font-helvetica">
                       Phone
                     </label>
-                    <input
-                      type="tel"
-                      placeholder="Enter your phone number..."
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      required
-                      className="font-helvetica mt-2 w-full border bg-white border-[#F2F4F7] rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#5f43f1]"
-                    />
+                    <div className="mt-2">
+                      <PhoneInput
+                        value={phone}
+                        onChange={setPhone}
+                        defaultCountryCode="PH"  // change if you want a different default
+                        required
+                      />
+                    </div>
                   </div>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
