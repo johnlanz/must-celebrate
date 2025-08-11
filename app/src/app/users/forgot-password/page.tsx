@@ -22,7 +22,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { Mail } from 'lucide-react'
+import { Eye, EyeOff, Mail } from 'lucide-react'
 
 export default function ForgotPasswordWithOtp() {
   const supabase = createClient()
@@ -36,6 +36,8 @@ export default function ForgotPasswordWithOtp() {
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [verifyOpen, setVerifyOpen] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
   useEffect(() => {
     setVerifyOpen(step === 'verify')
@@ -187,24 +189,38 @@ export default function ForgotPasswordWithOtp() {
                     Create new password
                   </label>
                   <input
-                    type="password"
+                    type={showPassword ? 'text' : 'password'}
                     placeholder="New password"
                     className="font-helvetica mt-2 w-full border bg-white border-[#F2F4F7] rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#5f43f1]"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                   />
+                  <button
+                    type="button"
+                    className="absolute inset-y-0 top-8 right-4 flex items-center"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  </button>
               </div>
               <div className="relative flex items-start flex-col mt-4 mb-8">
                   <label htmlFor="password" className="text-[#475467] text-[14px] font-medium font-helvetica">
                     Confirm password
                   </label>
                   <input
-                    type="password"
+                    type={showConfirmPassword ? 'text' : 'password'}
                     placeholder="Confirm new password"
                     className="font-helvetica mt-2 w-full border bg-white border-[#F2F4F7] rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#5f43f1]"
                     value={confirm}
                     onChange={(e) => setConfirm(e.target.value)}
                   />
+                  <button
+                    type="button"
+                    className="absolute inset-y-0 top-8 right-4 flex items-center"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  >
+                    {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  </button>
               </div>
               <button
                 onClick={updatePassword}
