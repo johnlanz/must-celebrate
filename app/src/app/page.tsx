@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -17,6 +17,16 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -43,16 +53,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import Image from 'next/image'
-
-// ---------- Mock data ----------
-const categories = [
-  { id: 1, title: "Weddings & Milestones", image: "/images/weddings.jpg" },
-  { id: 2, title: "Birthdays & Celebrations", image: "/images/birthday.jpg" },
-  { id: 3, title: "Corporate & Professional", image: "/images/corporate.jpg" },
-  { id: 4, title: "Community & Cultural", image: "/images/community.jpg" },
-  { id: 5, title: "Entertainment & Sports", image: "/images/entertainment.jpg" },
-  { id: 6, title: "Funerals & Memorials", image: "/images/celebration.jpg" },
-];
+import { toast } from "sonner";
 
 const packages = Array.from({ length: 5 }).map((_, i) => ({
   id: i + 1,
@@ -62,18 +63,107 @@ const packages = Array.from({ length: 5 }).map((_, i) => ({
   img: "/img/rings.jpg",
 }));
 
-const vendors = [
-  { name: "Urbanity, Inc", role: "Furniture Rental", avatar: "" },
-  { name: "Dino Dovie, Mails", role: "Planner", avatar: "" },
-  { name: "Brett Nitzsche", role: "Videographer", avatar: "" },
-  { name: "Brooke Brown", role: "Photographer", avatar: "" },
-  { name: "GleemX", role: "Lights & Sounds", avatar: "" },
-];
+type HashAuth = {
+  access_token?: string
+  refresh_token?: string
+  token_type?: string
+  type?: string
+  expires_in?: number
+  expires_at?: number
+}
+
+function parseHashParams(hash: string): HashAuth {
+  const qs = new URLSearchParams(hash.startsWith('#') ? hash.slice(1) : hash)
+  return {
+    access_token: qs.get('access_token') ?? undefined,
+    refresh_token: qs.get('refresh_token') ?? undefined,
+    token_type: qs.get('token_type') ?? undefined,
+    type: qs.get('type') ?? undefined,
+    expires_in: qs.get('expires_in') ? Number(qs.get('expires_in')) : undefined,
+    expires_at: qs.get('expires_at') ? Number(qs.get('expires_at')) : undefined,
+  }
+}
 
 export default function LandingPage() {
+  const [auth, setAuth] = useState<HashAuth | null>(null)
+  const [verifyOpen, setVerifyOpen] = useState(false)
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    if (!window.location.hash) return
+
+    const parsed = parseHashParams(window.location.hash)
+
+    // (Optional) ignore if expired
+    if (parsed.expires_at && Date.now() / 1000 > parsed.expires_at) {
+      // handle expired link (show message / redirect)
+      return
+    }
+
+    setAuth(parsed)
+
+    // Clean the URL (remove the token fragment from the address bar)
+    const { pathname, search } = window.location
+    window.history.replaceState({}, '', pathname + search)
+  }, [])
+
+  // You now have:
+  // auth?.access_token  -> the JWT
+  // auth?.type          -> "signup" | "recovery" | "magiclink" etc.
+
+  // Do any post-login routing you want here
+  useEffect(() => {
+    if (!auth) return
+    // Example: redirect first-time signups
+    if (auth.type === 'signup') {
+      setVerifyOpen(true)
+    }
+  }, [auth])
+
   return (
     <div className="px-[56px] w-full bg-[#fcfcfd]">
       <Navbar />
+
+      {verifyOpen && (
+        <Dialog open={verifyOpen} onOpenChange={(open) => {
+          setVerifyOpen(open)
+          if (!open) setVerifyOpen(false)
+        }}>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>
+                <div className="flex justify-center items-center">
+                  <div className="w-[56px] h-[56px] bg-[#F2F4F7] rounded-full flex justify-center items-center">
+                    <Mail />
+                  </div>
+                </div>
+              </DialogTitle>
+            </DialogHeader>
+            <div className="text-center flex flex-col justify-center items-center space-y-4">
+
+              <p className="font-medium text-[18px]">Your email is successfully confirmed!</p>
+              <p>Welcome to Must Celebrate</p>
+            </div>
+
+            <DialogFooter className="flex gap-2">
+              <DialogClose asChild>
+                <button
+                  onClick={() => setVerifyOpen(false)}
+                  className="w-full cursor-pointer border text-[#1D2939] py-3 rounded-full hover:bg-gray-50 disabled:opacity-50"
+                >
+                  Close
+                </button>
+              </DialogClose>
+              <Link
+                href="/users/login"
+                className="flex items-center justify-center w-full py-2 cursor-pointer bg-[#6A52FF] text-white rounded-full hover:bg-[#0e08a7]"
+              >
+                Login
+              </Link>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
 
       {/* HERO */}
       <div className="rounded-3xl bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-muted dark:to-muted/60">
@@ -221,9 +311,9 @@ let heightClass = "";
 
         <div className="mt-6 flex justify-center">
           <button
-              className="flex items-center cursor-pointer bg-white border px-12 py-2 rounded-full shadow-2xl font-medium text-[20px]"
-            >
-              View All
+            className="flex items-center cursor-pointer bg-white border px-12 py-2 rounded-full shadow-2xl font-medium text-[20px]"
+          >
+            View All
           </button>
         </div>
       </section>
@@ -234,7 +324,7 @@ let heightClass = "";
       <section className="mt-20 font-[Satoshi]">
         <h2 className="text-center text-[56px] font-bold">How It Works</h2>
         <div className="mt-8 flex justify-center items-center">
-            <img src="/images/how_it_works.png" alt="How It Works" className="cover" />
+          <img src="/images/how_it_works.png" alt="How It Works" className="cover" />
         </div>
       </section>
 
@@ -264,9 +354,9 @@ let heightClass = "";
         </div>
         <div className="mt-6 flex justify-center">
           <button
-              className="flex items-center cursor-pointer bg-white border px-12 py-2 rounded-full shadow-2xl font-medium text-[20px]"
-            >
-              View All
+            className="flex items-center cursor-pointer bg-white border px-12 py-2 rounded-full shadow-2xl font-medium text-[20px]"
+          >
+            View All
           </button>
         </div>
       </section>
@@ -276,20 +366,20 @@ let heightClass = "";
         <Card className="overflow-hidden rounded-4xl border-0 bg-[#344054] text-white py-0">
           <CardContent className="flex items-center justify-between py-0">
             <div>
-              <h3 className="text-[56px] font-bold leading-[70px]">Book it. Shape it. Celebrate it. <br/>Your Dream Event, Your Way.</h3>
+              <h3 className="text-[56px] font-bold leading-[70px]">Book it. Shape it. Celebrate it. <br />Your Dream Event, Your Way.</h3>
               <p className="mt-2 text-white/90">From first idea to final detail, Must Celebrate gives you the tools <br />to plan effortlessly and make memories that last.</p>
-              
+
               <div className="mt-12 flex gap-2">
-                  <button
-                      className="flex gap-2 items-center cursor-pointer bg-[#6A52FF] text-white py-3 px-6 rounded-full hover:bg-[#0e08a7] disabled:opacity-50"
-                  >
-                      Book a Planner
-                  </button>
-                  <button
-                      className="flex gap-2 items-center cursor-pointer bg-white text-black py-3 px-6 rounded-full"
-                  >
-                      Create a DIY Event
-                  </button>
+                <button
+                  className="flex gap-2 items-center cursor-pointer bg-[#6A52FF] text-white py-3 px-6 rounded-full hover:bg-[#0e08a7] disabled:opacity-50"
+                >
+                  Book a Planner
+                </button>
+                <button
+                  className="flex gap-2 items-center cursor-pointer bg-white text-black py-3 px-6 rounded-full"
+                >
+                  Create a DIY Event
+                </button>
               </div>
             </div>
             <img src="/images/shapeit.png" alt="Shape It" className="h-[400px]" />
@@ -326,13 +416,13 @@ let heightClass = "";
       <section className="mt-20 font-[Satoshi]">
         <h2 className="text-center text-[56px] font-bold">Recommended Services</h2>
         <div className="mt-12 flex justify-center items-center">
-            <img src="/images/vendor.png" alt="vendor" className="bg-cover" />
+          <img src="/images/vendor.png" alt="vendor" className="bg-cover" />
         </div>
         <div className="mt-12 flex justify-center">
           <button
-              className="flex items-center cursor-pointer bg-white border px-12 py-2 rounded-full shadow-2xl font-medium text-[20px]"
-            >
-              View All
+            className="flex items-center cursor-pointer bg-white border px-12 py-2 rounded-full shadow-2xl font-medium text-[20px]"
+          >
+            View All
           </button>
         </div>
       </section>
@@ -341,43 +431,43 @@ let heightClass = "";
       <section className="mt-20 font-[Satoshi]">
         <h2 className="text-center text-[56px] font-bold">Deals & Offers</h2>
         <div className="mt-8 flex justify-center items-center">
-            <img src="/images/deals.png" alt="deals" className="bg-cover" />
+          <img src="/images/deals.png" alt="deals" className="bg-cover" />
         </div>
       </section>
 
       {/* WHY CHOOSE */}
       <section className="mt-20 font-[Satoshi] w-[70%] mx-auto">
-        <h2 className="text-center text-[56px] leading-[70px] font-bold">Why Choose <br/> Must Celebrate</h2>
+        <h2 className="text-center text-[56px] leading-[70px] font-bold">Why Choose <br /> Must Celebrate</h2>
         <div className="mt-12 flex justify-between">
           <div className="flex flex-col gap-3 items-center justify-center text-center text-[24px] font-medium">
             <button
-                className="flex justify-center items-center cursor-pointer w-[100px] h-[100px] bg-[#A799FF] text-white rounded-full hover:bg-[#0e08a7] drop-shadow-2xl"
+              className="flex justify-center items-center cursor-pointer w-[100px] h-[100px] bg-[#A799FF] text-white rounded-full hover:bg-[#0e08a7] drop-shadow-2xl"
             >
-                <BadgeCheck size={32} />
+              <BadgeCheck size={32} />
             </button>
             Centralised platform with <br />verified vendors
           </div>
           <div className="flex flex-col gap-3 items-center justify-center text-center text-[24px] font-medium">
             <button
-                className="flex justify-center items-center cursor-pointer w-[100px] h-[100px] bg-[#A799FF] text-white rounded-full hover:bg-[#0e08a7] drop-shadow-2xl"
+              className="flex justify-center items-center cursor-pointer w-[100px] h-[100px] bg-[#A799FF] text-white rounded-full hover:bg-[#0e08a7] drop-shadow-2xl"
             >
-                <CalendarDays size={32} />
+              <CalendarDays size={32} />
             </button>
             Planner — assisted <br /> bookings
           </div>
           <div className="flex flex-col gap-3 items-center justify-center text-center text-[24px] font-medium">
             <button
-                className="flex justify-center items-center cursor-pointer w-[100px] h-[100px] bg-[#A799FF] text-white rounded-full hover:bg-[#0e08a7] drop-shadow-2xl"
+              className="flex justify-center items-center cursor-pointer w-[100px] h-[100px] bg-[#A799FF] text-white rounded-full hover:bg-[#0e08a7] drop-shadow-2xl"
             >
-                <CreditCard size={32} />
+              <CreditCard size={32} />
             </button>
             Transparent pricing <br /> & reviews
           </div>
           <div className="flex flex-col gap-3 items-center justify-center text-center text-[24px] font-medium">
             <button
-                className="flex justify-center items-center cursor-pointer w-[100px] h-[100px] bg-[#A799FF] text-white rounded-full hover:bg-[#0e08a7] drop-shadow-2xl"
+              className="flex justify-center items-center cursor-pointer w-[100px] h-[100px] bg-[#A799FF] text-white rounded-full hover:bg-[#0e08a7] drop-shadow-2xl"
             >
-                <ShieldCheck size={32} />
+              <ShieldCheck size={32} />
             </button>
             Secure payment <br />options
           </div>
@@ -386,7 +476,7 @@ let heightClass = "";
 
       {/* BIG CTA STRIP */}
       <section className="mt-20 font-[Satoshi] flex justify-center items-center">
-          <img src="/images/wave.png" alt="vendor" className="bg-cover" />
+        <img src="/images/wave.png" alt="vendor" className="bg-cover" />
       </section>
 
       <Footer />
@@ -485,8 +575,8 @@ function Footer() {
             <p className="mt-3 text-sm text-muted-foreground">Must Celebrate - Your Trusted Platform <br /> for Managing Perfect Event</p>
             <img src="/images/social.png" alt="vendor" className="bg-cover" />
             <Link href="/" className="text-[#6A52FF] font-medium hover:underline flex gap-2 items-center">
-                Get started now
-                <MoveRight size={20} />
+              Get started now
+              <MoveRight size={20} />
             </Link>
           </div>
           <div className="flex items-start justify-between w-1/2">
